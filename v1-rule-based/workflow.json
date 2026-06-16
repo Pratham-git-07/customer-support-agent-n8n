@@ -1,0 +1,422 @@
+{
+  "name": "Customer Support Auto-Responder",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0",
+          "mode": "list",
+          "cachedResultName": "Customer Request Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "982fd7f1-a4f3-4ac0-b112-9627072ae183",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "EtGToVVmwuHH6goO",
+          "name": "Google Sheets Trigger OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5e39440b-1664-480a-84d1-fbf7b44dd6a5",
+                    "leftValue": "={{$json[\"category\"]}}",
+                    "rightValue": "billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Billing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "648a0c6a-bedf-4d23-a456-268eab1cdd0f",
+                    "leftValue": "={{$json[\"category\"]}}",
+                    "rightValue": "technical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Technical"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a9376af9-2afb-409a-88ee-cec4306b41c1",
+                    "leftValue": "={{$json[\"category\"]}}",
+                    "rightValue": "feedback",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Feedback"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "df7287b6-1995-47d7-bf03-2f0a52d082ae",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"email\"]}}",
+        "subject": "Regarding your Billing Query",
+        "message": "=Hi {{$json[\"name\"]}},\n\nWe've received your billing query regarding:\n\n\"{{$json[\"message\"]}}\"\n\nPriority: {{$json[\"urgency\"]}}\n\nOur finance team will respond within 24 hours.\n\nRegards,\nSupportly Billing Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -176
+      ],
+      "id": "7b23c8b8-3bac-46c5-a039-144ea4ed8746",
+      "name": "Biiling Email",
+      "webhookId": "b0d378fe-947b-49d3-9fd9-9352166b6c01",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"email\"]}} ",
+        "subject": " We’re looking into your technical issue",
+        "message": "=Hi {{$json[\"name\"]}}, Thanks for reporting a technical issue. Our tech team is already on it and will update  you soon. – Supportly Tech Support",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        32
+      ],
+      "id": "41192580-abd2-47d2-82e3-49adcebbda18",
+      "name": "Technical Email",
+      "webhookId": "56923e98-4418-4c38-a21a-69ab33166892",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"email\"]}}",
+        "subject": "Thank you for your feedback",
+        "message": "=Hi {{$json[\"name\"]}},  Thank you for sharing your feedback with us.  We appreciate your suggestions and continuously work to improve our services.  Regards, Supportly Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        208
+      ],
+      "id": "e1d1abc5-5ec2-490c-95e9-9eb0dc3f7862",
+      "name": "Feedback Email",
+      "webhookId": "80759bc2-0b3d-4b93-994b-4c16c1183196",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0",
+          "mode": "list",
+          "cachedResultName": "Customer Request Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 315354479,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit#gid=315354479"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Route Customer Query').item.json.name }}",
+            "Email": "={{ $('Route Customer Query').item.json.email }}",
+            "Category": "={{ $('Route Customer Query').item.json.category }}",
+            "Urgency": "={{ $('Route Customer Query').item.json.urgency }}",
+            "Timestamp": "= {{$now}}",
+            "Status": "Email Sent"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "088bcc16-5836-4cfb-bf0e-a8265db367e8",
+      "name": "Log Support Request",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZss523xlOONE6Wf",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const row = item.json;\n\n  let category = (row.Category || \"\").toLowerCase().trim();\n  let urgency = (row.Urgency || \"\").toLowerCase().trim();\n\n  let route = \"feedback\";\n\n  if (category.includes(\"bill\")) {\n    route = \"billing\";\n  } else if (category.includes(\"tech\")) {\n    route = \"technical\";\n  }\n\n  return {\n    json: {\n      name: row.Name,\n      email: row.Email,\n      category: route,\n      message: row.Message,\n      urgency: urgency,\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4e9e1054-6233-4def-ab7e-4da92a468c76",
+      "name": "Route Customer Query"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Route Customer Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Biiling Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Technical Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Feedback Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Biiling Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Technical Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Customer Query": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "36010357-bf16-4ffd-976d-84506c825b8a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5187151ae05014505d15ca2a8db0dc83a2b958246afeb23ac38fb0b8e0437ed"
+  },
+  "nodeGroups": [],
+  "id": "3ylD8LJRt7SAaoty",
+  "tags": []
+}
