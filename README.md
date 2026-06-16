@@ -1,5 +1,3 @@
-<img width="1441" height="635" alt="image" src="https://github.com/user-attachments/assets/3940c891-175b-4f75-ae9c-d8b37de41951" /># Customer Support Automation using n8n (V1)
-
 ## Overview
 
 This project is a rule-based customer support automation workflow built using **n8n**, **Google Sheets**, **Gmail**, and **JavaScript**.
