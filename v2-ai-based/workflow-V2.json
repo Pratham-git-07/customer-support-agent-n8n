@@ -1,0 +1,581 @@
+{
+  "name": "Customer Support Auto-AI- Responder V2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0",
+          "mode": "list",
+          "cachedResultName": "Customer Request Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "ba7b58b4-83f8-46dd-85bb-c0ea246f0b67",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "EtGToVVmwuHH6goO",
+          "name": "Google Sheets Trigger OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5e39440b-1664-480a-84d1-fbf7b44dd6a5",
+                    "leftValue": "={{ ($json[\"text\"] || \"ai_failed\").toLowerCase().trim() }}",
+                    "rightValue": "billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Billing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "648a0c6a-bedf-4d23-a456-268eab1cdd0f",
+                    "leftValue": "={{ ($json[\"text\"] || \"ai_failed\").toLowerCase().trim() }}",
+                    "rightValue": "technical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Technical"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a9376af9-2afb-409a-88ee-cec4306b41c1",
+                    "leftValue": "={{ ($json[\"text\"] || \"ai_failed\").toLowerCase().trim() }}",
+                    "rightValue": "feedback",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Feedback"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "316a5021-cda2-4dc0-8654-26d66f2ca778",
+                    "leftValue": "={{ ($json[\"text\"] || \"ai_failed\").toLowerCase().trim() }}",
+                    "rightValue": "ai_failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AI Failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        0
+      ],
+      "id": "d232a1d7-7aee-4939-a921-e857dc0cee70",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Regarding your Billing Query",
+        "message": "=<p>Hi {{$json[\"name\"]}},</p>\n\n<p>We've received your billing query regarding:</p>\n\n<p><b>\"{{$json[\"message\"]}}\"</b></p>\n\n<p><b>Priority:</b> {{$json[\"urgency\"]}}</p>\n\n<p>Our finance team will respond within 24 hours.</p>\n\n<p>Regards,<br>\nSupportly Billing Team</p>\n\n<hr>\n\n<i>This email was sent automatically with n8n.</i>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        -288
+      ],
+      "id": "5e15188f-cb14-44d2-a1c3-b03319b7c629",
+      "name": "Biiling Email",
+      "webhookId": "cd3abd36-4e91-4b38-9da7-f2d791868c22",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"email\"]}} ",
+        "subject": " We’re looking into your technical issue",
+        "message": "=Hi {{$json[\"name\"]}}, Thanks for reporting a technical issue. Our tech team is already on it and will update  you soon. – Supportly Tech Support",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        -80
+      ],
+      "id": "78cd2a9c-d757-4f74-8b7a-978256bac15e",
+      "name": "Technical Email",
+      "webhookId": "d93e9a1e-09f8-4434-bfa0-4c509b8a0b6c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"email\"]}}",
+        "subject": "Thank you for your feedback",
+        "message": "=Hi {{$json[\"name\"]}},  Thank you for sharing your feedback with us.  We appreciate your suggestions and continuously work to improve our services.  Regards, Supportly Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        112
+      ],
+      "id": "5dc477cf-4d34-4975-a7d5-c836b16f0e25",
+      "name": "Feedback Email",
+      "webhookId": "133aadfe-d71e-4af5-93f9-1d63c36d16ad",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0",
+          "mode": "list",
+          "cachedResultName": "Customer Request Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 315354479,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DP6dSZTY-kdjjQumY0_s0E2Pmcon8LJxrVFwhXT-ck0/edit#gid=315354479"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Preprocess Cutomer Query').item.json.name }}",
+            "Email": "={{ $('Preprocess Cutomer Query').item.json.email }}",
+            "Category": "={{ $('Preprocess Cutomer Query').item.json.category }}",
+            "Urgency": "={{ $('Preprocess Cutomer Query').item.json.urgency }}",
+            "Status": "Email Sent",
+            "AI Status": "={{ $json[\"text\"] ? \"Success\" : \"Failed\" }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Status",
+              "displayName": "AI Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1392,
+        16
+      ],
+      "id": "fee5fcc8-2c95-48d9-a6f2-db5ef60b8ff5",
+      "name": "Log Support Request",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZss523xlOONE6Wf",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const row = item.json;\n\n  let urgency = (row.Urgency || \"\").toLowerCase().trim();\n\n  return {\n    json: {\n      name: row.Name,\n      email: row.Email,\n      message: row.Message,\n      urgency: urgency\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "614ce9aa-0aa4-440b-91ab-b6bff38a2b4d",
+      "name": "Preprocess Cutomer Query"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a customer support classifier.\n\nClassify the following customer query into EXACTLY one category:\n\nbilling\ntechnical\nfeedback\n\nCustomer query:\n{{$json[\"message\"]}}\n\nReturn ONLY one word.\n\nExamples:\n\"I was charged twice on my invoice.\" → billing\n\"My application crashes when I login.\" → technical\n\"The dashboard is difficult to use.\" → feedback",
+        "messages": {
+          "messageValues": []
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        176,
+        0
+      ],
+      "id": "a20bb0a4-0278-48a3-a537-bcfdfc27c5d3",
+      "name": "Basic LLM Chain",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        208
+      ],
+      "id": "4967e015-07b8-41b1-ad0c-01b4aaebf72f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n3QUC3SuEjmxR0LX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        512,
+        -240
+      ],
+      "id": "aa3ce525-022b-4872-ba81-7fe7094931f6",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sendTo": "prathamsrealm@gmail.com",
+        "subject": "=AI Classification Failed - {{$json[\"name\"]}}",
+        "message": "=<h2>AI Classification Failed</h2>\n\n<p><b>Customer:</b> {{$json[\"name\"]}}</p>\n<p><b>Email:</b> {{$json[\"email\"]}}</p>\n<p><b>Urgency:</b> {{$json[\"urgency\"]}}</p>\n<p><b>Timestamp:</b> {{$now}}</p>\n\n<p><b>Error:</b> {{$json[\"error\"]}}</p>\n\n<p><b>Customer Query:</b></p>\n<p>{{$json[\"message\"]}}</p>\n\n<hr>\n\n<p>The AI classification service encountered an error or exceeded rate limits.</p>\n\n---\n<i>This email was sent automatically with n8n</i>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        336
+      ],
+      "id": "03efe26e-d572-4526-9628-57856bd04a9d",
+      "name": "AI Failure Alert",
+      "webhookId": "26a630fb-b9d5-4c0c-b7c7-9ea36b01fe2b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Yz27mIYk1RPaR4Xe",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Preprocess Cutomer Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Biiling Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Technical Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Feedback Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Failure Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Biiling Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Technical Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback Email": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preprocess Cutomer Query": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Failure Alert": {
+      "main": [
+        [
+          {
+            "node": "Log Support Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7ab36a0d-c35f-42c0-a326-f02dad1f17a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5187151ae05014505d15ca2a8db0dc83a2b958246afeb23ac38fb0b8e0437ed"
+  },
+  "nodeGroups": [],
+  "id": "xs6sx5J9gIT41lKg",
+  "tags": []
+}
